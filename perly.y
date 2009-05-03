@@ -525,7 +525,7 @@ formname:	WORD		{ $$ = $1; }
 	|	/* NULL */	{ $$ = (OP*)NULL; }
 	;
 
-/* Unimplemented "my sub foo { }" */
+/* "my sub foo { }" */
 mysubrout:	MYSUB startsub subname proto subattrlist subbody
 			{ SvREFCNT_inc_simple_void(PL_compcv);
 #ifdef MAD

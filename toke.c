@@ -6881,8 +6881,10 @@ Perl_yylex(pTHX)
 		(void) force_word(PL_oldbufptr + tboffset, WORD,
 				  FALSE, TRUE, TRUE);
 #endif
-		if (key == KEY_my)
+		if (key == KEY_my) {
+		    PL_in_my = 0;
 		    TOKEN(MYSUB);
+		}
 		TOKEN(SUB);
 	    }
 

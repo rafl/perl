@@ -1106,11 +1106,7 @@
 #endif
 #define newANONATTRSUB		Perl_newANONATTRSUB
 #define newATTRSUB		Perl_newATTRSUB
-#ifdef PERL_MAD
 #define newMYSUB		Perl_newMYSUB
-#else
-#define newMYSUB		Perl_newMYSUB
-#endif
 #ifdef PERL_CORE
 #define my_attrs		Perl_my_attrs
 #endif
@@ -3436,11 +3432,7 @@
 #endif
 #define newANONATTRSUB(a,b,c,d)	Perl_newANONATTRSUB(aTHX_ a,b,c,d)
 #define newATTRSUB(a,b,c,d,e)	Perl_newATTRSUB(aTHX_ a,b,c,d,e)
-#ifdef PERL_MAD
 #define newMYSUB(a,b,c,d,e)	Perl_newMYSUB(aTHX_ a,b,c,d,e)
-#else
-#define newMYSUB(a,b,c,d,e)	Perl_newMYSUB(aTHX_ a,b,c,d,e)
-#endif
 #ifdef PERL_CORE
 #define my_attrs(a,b)		Perl_my_attrs(aTHX_ a,b)
 #endif

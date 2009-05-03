@@ -81,6 +81,7 @@ Returns the stash of the CV.
 				   (esp. useful for special XSUBs) */
 #define CVf_CONST	0x0400  /* inlinable sub */
 #define CVf_ISXSUB	0x0800	/* CV is an XSUB, not pure perl.  */
+#define CVf_LEXICAL	0x1000	/* CV is lexical (my sub foo) */
 
 /* This symbol for optimised communication between toke.c and op.c: */
 #define CVf_BUILTIN_ATTRS	(CVf_METHOD|CVf_LVALUE)
@@ -133,6 +134,10 @@ Returns the stash of the CV.
 #define CvISXSUB(cv)		(CvFLAGS(cv) & CVf_ISXSUB)
 #define CvISXSUB_on(cv)		(CvFLAGS(cv) |= CVf_ISXSUB)
 #define CvISXSUB_off(cv)	(CvFLAGS(cv) &= ~CVf_ISXSUB)
+
+#define CvLEXICAL(cv)		(CvFLAGS(cv) & CVf_LEXICAL)
+#define CvLEXICAL_on(cv)	(CvFLAGS(cv) |= CVf_LEXICAL)
+#define CvLEXICAL_off(cv)	(CvFLAGS(cv) &= ~CVf_LEXICAL)
 
 /* Flags for newXS_flags  */
 #define XS_DYNAMIC_FILENAME	0x01	/* The filename isn't static  */

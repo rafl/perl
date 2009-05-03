@@ -5479,32 +5479,68 @@ Perl_op_const_sv(pTHX_ const OP *o, CV *cv)
     return sv;
 }
 
-#ifdef PERL_MAD
-OP *
-#else
-void
-#endif
+typedef struct {
+    CV *old_cv;
+    GV *gv;
+} mysub_ctx_t;
+
+STATIC void
+S_clean_mysub (pTHX_ mysub_ctx_t *ctx)
+{
+    GV *gv = ctx->gv;
+    GV *new = (GV *)newSV(0);
+    gv_init(new, GvSTASH(gv), GvNAME(gv), GvNAMELEN(gv), GvMULTI(gv));
+
+    if (GvSV(gv)) {
+        GvSV(new) = GvSV(gv);
+    }
+    if (GvAV(gv)) {
+        GvAV(new) = GvAV(gv);
+    }
+    if (GvHV(gv)) {
+        GvHV(new) = GvHV(gv);
+    }
+    if (GvIOp(gv)) {
+        GvIOp(new) = GvIO(gv);
+    }
+    if (GvFORM(gv)) {
+        GvFORM(new) = GvFORM(gv);
+    }
+    if (ctx->old_cv) {
+        GvCV(new) = ctx->old_cv;
+        CvGV(ctx->old_cv) = new;
+    }
+
+    (void)hv_store(GvSTASH(gv), GvNAME(gv), GvNAMELEN(gv), (SV *)new, 0);
+    mro_method_changed_in(GvSTASH(new));
+
+    Safefree(ctx);
+}
+
+CV *
 Perl_newMYSUB(pTHX_ I32 floor, OP *o, OP *proto, OP *attrs, OP *block)
 {
-#if 0
-    /* This would be the return value, but the return cannot be reached.  */
-    OP* pegop = newOP(OP_NULL, 0);
-#endif
+    CV *cv;
+    GV *gv;
+    mysub_ctx_t *ctx;
+    const I32 gv_fetch_flags = (block || attrs || (CvFLAGS(PL_compcv) & CVf_BUILTIN_ATTRS))
+        ? GV_ADDMULTI : GV_ADDMULTI | GV_NOINIT;
 
     PERL_UNUSED_ARG(floor);
 
-    if (o)
-	SAVEFREEOP(o);
-    if (proto)
-	SAVEFREEOP(proto);
-    if (attrs)
-	SAVEFREEOP(attrs);
-    if (block)
-	SAVEFREEOP(block);
-    Perl_croak(aTHX_ "\"my sub\" not yet implemented");
-#ifdef PERL_MAD
-    NORETURN_FUNCTION_END;
-#endif
+    Newx(ctx, 1, mysub_ctx_t);
+
+    gv = gv_fetchsv(cSVOPo->op_sv, gv_fetch_flags, SVt_PVCV);
+    ctx->old_cv = gv ? (CV *)SvREFCNT_inc((SV *)GvCV(gv)) : NULL;
+
+    cv = Perl_newATTRSUB(aTHX_ floor, o, proto, attrs, block);
+    CvLEXICAL_on(cv);
+
+    ctx->gv = CvGV(cv);
+
+    SAVEDESTRUCTOR_X(S_clean_mysub, ctx);
+
+    return cv;
 }
 
 CV *
