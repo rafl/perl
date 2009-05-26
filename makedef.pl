@@ -58,7 +58,7 @@ while (@ARGV) {
     }
 }
 
-my @PLATFORM = qw(aix win32 wince os2 MacOS netware);
+my @PLATFORM = qw(aix win32 wince os2 MacOS netware gnuelf);
 my %PLATFORM;
 @PLATFORM{@PLATFORM} = ();
 
@@ -249,6 +249,10 @@ elsif ($PLATFORM eq 'netware') {
 	    output_symbol("perl_alloc_override");
 	    output_symbol("perl_clone_host");
 	}
+}
+elsif ($PLATFORM eq 'gnuelf') {
+    print "LIBPERL {\n";
+    print "  global:";
 }
 
 my %skip;
@@ -615,6 +619,11 @@ elsif ($PLATFORM eq 'netware') {
 			Perl_PerlIO_clearerr
 			PerlIO_perlio
 			)];
+}
+elsif ($PLATFORM eq 'gnuelf') {
+	emit_symbols [qw(
+		boot_DynaLoader
+	)];
 }
 
 unless ($define{'DEBUGGING'}) {
@@ -1611,6 +1620,9 @@ if ($PLATFORM eq 'os2') {
 ; LAST_ORDINAL=$sym_ord
 EOP
 }
+elsif ($PLATFORM eq 'gnuelf') {
+    print "\n  local: *;\n};\n";
+}
 
 sub emit_symbol {
     my $symbol = shift;
@@ -1659,6 +1671,9 @@ sub output_symbol {
 	elsif ($PLATFORM eq 'netware') {
 	print "\t$symbol,\n";
 	}
+    elsif ($PLATFORM eq 'gnuelf') {
+        print " $symbol;";
+    }
 }
 
 1;
