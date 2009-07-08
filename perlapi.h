@@ -220,6 +220,8 @@ END_EXTERN_C
 #define PL_comppad_name_fill	(*Perl_Icomppad_name_fill_ptr(aTHX))
 #undef  PL_comppad_name_floor
 #define PL_comppad_name_floor	(*Perl_Icomppad_name_floor_ptr(aTHX))
+#undef  PL_compscopegv
+#define PL_compscopegv		(*Perl_Icompscopegv_ptr(aTHX))
 #undef  PL_cop_seqmax
 #define PL_cop_seqmax		(*Perl_Icop_seqmax_ptr(aTHX))
 #undef  PL_cryptseen

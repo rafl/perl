@@ -2819,6 +2819,7 @@ PERL_CALLCONV HV*	Perl_save_hash(pTHX_ GV* gv)
 	assert(gv)
 
 PERL_CALLCONV void	Perl_save_hints(pTHX);
+PERL_CALLCONV void	Perl_save_compscope(pTHX);
 /* PERL_CALLCONV void	Perl_save_helem(pTHX_ HV *hv, SV *key, SV **sptr)
 			__attribute__nonnull__(pTHX_1)
 			__attribute__nonnull__(pTHX_2)

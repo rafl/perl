@@ -2264,6 +2264,7 @@ Perl_block_start(pTHX_ int full)
     const int retval = PL_savestack_ix;
     pad_block_start(full);
     SAVEHINTS();
+    SAVECOMPSCOPE();
     PL_hints &= ~HINT_BLOCK_SCOPE;
     SAVECOMPILEWARNINGS();
     PL_compiling.cop_warnings = DUP_WARNINGS(PL_compiling.cop_warnings);

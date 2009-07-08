@@ -790,6 +790,7 @@
 #define save_hash		Perl_save_hash
 #ifdef PERL_CORE
 #define save_hints		Perl_save_hints
+#define save_compscope		Perl_save_compscope
 #endif
 #define save_helem_flags	Perl_save_helem_flags
 #define save_hptr		Perl_save_hptr
@@ -3130,6 +3131,7 @@
 #define save_hash(a)		Perl_save_hash(aTHX_ a)
 #ifdef PERL_CORE
 #define save_hints()		Perl_save_hints(aTHX)
+#define save_compscope()	Perl_save_compscope(aTHX)
 #endif
 #define save_helem_flags(a,b,c,d)	Perl_save_helem_flags(aTHX_ a,b,c,d)
 #define save_hptr(a)		Perl_save_hptr(aTHX_ a)

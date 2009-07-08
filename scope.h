@@ -55,6 +55,7 @@
 #define SAVEt_STACK_CXPOS	44
 #define SAVEt_PARSER		45
 #define SAVEt_ADELETE		46
+#define SAVEt_COMPSCOPE		47
 
 #define SAVEf_SETMAGIC		1
 
@@ -161,6 +162,8 @@ Closing bracket on a callback.  See C<ENTER> and L<perlcall>.
 #define SAVEOP()	save_op()
 
 #define SAVEHINTS()	save_hints()
+
+#define SAVECOMPSCOPE()	save_compscope()
 
 #define SAVECOMPPAD() save_pushptr(MUTABLE_SV(PL_comppad), SAVEt_COMPPAD)
 

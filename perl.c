@@ -934,6 +934,7 @@ perl_destruct(pTHXx)
     PL_envgv = NULL;
     PL_incgv = NULL;
     PL_hintgv = NULL;
+    PL_compscopegv = NULL;
     PL_errgv = NULL;
     PL_argvgv = NULL;
     PL_argvoutgv = NULL;
@@ -3441,6 +3442,8 @@ S_init_main_stash(pTHX)
     GvMULTI_on(PL_incgv);
     PL_hintgv = gv_fetchpvs("\010", GV_ADD|GV_NOTQUAL, SVt_PV); /* ^H */
     GvMULTI_on(PL_hintgv);
+    PL_compscopegv = gv_fetchpvs("\003OMPILE_SCOPE_CONTAINER", GV_ADD|GV_NOTQUAL, SVt_PVAV); /* ^COMPILE_SCOPE_CONTAINER */
+    GvMULTI_on(PL_compscopegv);
     PL_defgv = gv_fetchpvs("_", GV_ADD|GV_NOTQUAL, SVt_PVAV);
     SvREFCNT_inc_simple_void(PL_defgv);
     PL_errgv = gv_HVadd(gv_fetchpvs("@", GV_ADD|GV_NOTQUAL, SVt_PV));

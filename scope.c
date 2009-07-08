@@ -560,6 +560,25 @@ Perl_save_hints(pTHX)
     }
 }
 
+void
+Perl_save_compscope(pTHX)
+{
+    AV *const cur = GvAV(PL_compscopegv);
+
+    if (cur) {
+	I32 i;
+	AV *const new = newAV();
+
+	for (i = 0; i <= av_len(cur); i++) {
+	    av_store(new, i, newSVsv(*av_fetch(cur, i, 0)));
+	}
+
+	GvAV(PL_compscopegv) = new;
+    }
+
+    save_pushptr(cur, SAVEt_COMPSCOPE);
+}
+
 static void
 S_save_pushptri32ptr(pTHX_ void *const ptr1, const I32 i, void *const ptr2,
 			const int type)
@@ -972,6 +991,12 @@ Perl_leave_scope(pTHX_ I32 base)
 		GvHV(PL_hintgv) = hv;
 	    }
 	    assert(GvHV(PL_hintgv));
+	    break;
+	case SAVEt_COMPSCOPE:
+	    if (GvAV(PL_compscopegv)) {
+		SvREFCNT_dec(MUTABLE_SV(GvAV(PL_compscopegv)));
+	    }
+	    GvAV(PL_compscopegv) = MUTABLE_AV(SSPOPPTR);
 	    break;
 	case SAVEt_COMPPAD:
 	    PL_comppad = (PAD*)SSPOPPTR;
