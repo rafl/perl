@@ -1135,6 +1135,7 @@ SVOP_gv(o)
 #define PADOP_padix(o)	o->op_padix
 #define PADOP_sv(o)	(o->op_padix ? PAD_SVl(o->op_padix) : Nullsv)
 #define PADOP_gv(o)	((o->op_padix \
+			  && PAD_SVl(o->op_padix) \
 			  && SvTYPE(PAD_SVl(o->op_padix)) == SVt_PVGV) \
 			 ? (GV*)PAD_SVl(o->op_padix) : (GV *)NULL)
 
