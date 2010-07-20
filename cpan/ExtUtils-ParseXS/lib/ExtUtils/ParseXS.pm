@@ -1004,8 +1004,9 @@ EOF
   print Q(<<"EOF");
 #    PERL_UNUSED_VAR(cv); /* -W */
 #    PERL_UNUSED_VAR(items); /* -W */
+#    XS_APIVERSION_BOOTCHECK;
 EOF
-    
+
   print Q(<<"EOF") if $WantVersionChk ;
 #    XS_VERSION_BOOTCHECK ;
 #
