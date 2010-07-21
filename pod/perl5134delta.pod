@@ -97,9 +97,9 @@ XXX
 
 =over 4
 
-=item *
+=item C<Carp>
 
-XXX
+Upgraded from version 1.16 to 1.17.
 
 =back
 
@@ -210,7 +210,7 @@ L</Platform Support> section, instead.
 
 =item *
 
-XXX
+Improve compatibility with C<C++> compilers.
 
 =back
 
@@ -309,7 +309,8 @@ L</Modules and Pragmata>.
 
 =item *
 
-XXX
+Fixed possible memory leak when using L<caller()|perlfunc/"caller EXPR"> to set
+C<@DB::args>.
 
 =back
 
