@@ -1,5 +1,8 @@
 =encoding utf8
 
+=for rafl
+changelogged up to commit 71089104
+
 =head1 NAME
 
 [ this is a template for a new perldelta file. Any text flagged as
@@ -129,13 +132,14 @@ XXX Changes which significantly change existing files in F<pod/> go here.
 However, any changes to F<pod/perldiag.pod> should go in the L</Diagnostics>
 section.
 
-=head3 L<XXX>
+=head3 L<perlport>
 
 =over 4
 
 =item *
 
-XXX Description of the change here
+Documented a L<limitation|perlport/alarm> of L<alarm()|perlfunc/"alarm SECONDS">
+on Win32.
 
 =back
 
@@ -271,9 +275,9 @@ L</Modules and Pragmata> section.
 
 =over 4
 
-=item XXX-some-platform
+=item Win32
 
-XXX
+Fixed a possible hang in F<t/op/readline.t>.
 
 =back
 
