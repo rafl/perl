@@ -1,7 +1,7 @@
 =encoding utf8
 
 =for rafl
-changelogged up to commit 71089104
+changelogged up to commit cfef31b2
 
 =head1 NAME
 
@@ -99,7 +99,11 @@ XXX
 
 =item C<Carp>
 
-Upgraded from version 1.16 to 1.17.
+Upgraded from version 1.16 to 1.18.
+
+Carp now detects incomplete L<caller()|perlfunc/"caller EXPR"> overrides and
+avoids using bogus C<@DB::args>. This fixes certain cases of C<Bizarre copy of
+ARRAY> caused by modules overriding C<caller()> incorrectly.
 
 =back
 
@@ -277,7 +281,17 @@ L</Modules and Pragmata> section.
 
 =item Win32
 
+=over 4
+
+=item *
+
 Fixed a possible hang in F<t/op/readline.t>.
+
+=item *
+
+Fixed Makefile for SDK2003SP1 compilers.
+
+=back
 
 =back
 
@@ -291,9 +305,16 @@ be noted as well.
 
 =over 4
 
-=item *
+=item Removed C<PERL_POLLUTE>
 
-XXX
+The option to define C<PERL_POLLUTE> to expose older 5.005 symbols for backwards
+compatibility has been removed. It's use was always discouraged, and MakeMaker
+contains a more specific escape hatch:
+
+    perl Makefile.PL POLLUTE=1
+
+This can be used for modules that have not been upgraded to 5.6 naming
+conventions (and really should be completely obsolete by now).
 
 =back
 
