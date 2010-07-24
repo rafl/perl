@@ -711,6 +711,23 @@ $(LIBPERL_NONSHR): $(obj)
 
 !NO!SUBS!
 	;;
+*)
+        # ELF platforms with GNU linker
+        # this doesn't actuall check for a GNU linker yet, as Configure doesn't
+        # provide this yet.
+        if [ "$bin_ELF" = 'define' ]; then
+            case "$useshrplib" in
+            define|true|[yY]*)
+		    $spitshell >>$Makefile <<'!NO!SUBS!'
+LIBPERLLDSCRIPT = libperl.version
+
+libperl.version: $(MINIPERL_EXE) makedef.pl config.sh $(SYM) $(SYMH)
+	$(MINIPERL) makedef.pl PLATFORM=gnuelf CC_FLAGS="$(OPTIMIZE)" > $@
+
+!NO!SUBS!
+                    ;;
+            esac
+        fi
 esac
 
 if test -s $Makefile_s ; then
@@ -741,13 +758,13 @@ $(DTRACE_O): perldtrace.d
 		;;
     esac
 	$spitshell >>$Makefile <<'!NO!SUBS!'
-$(LIBPERL): $& $(obj) $(DYNALOADER) $(LIBPERLEXPORT)
+$(LIBPERL): $& $(obj) $(DYNALOADER) $(LIBPERLEXPORT) $(LIBPERLLDSCRIPT)
 !NO!SUBS!
 	case "$useshrplib" in
 	true)
 		$spitshell >>$Makefile <<'!NO!SUBS!'
 	rm -f $@
-	$(LD) -o $@ $(SHRPLDFLAGS) $(obj) $(DYNALOADER) $(libs)
+	$(LD) -Wl,--version-script=$(LIBPERLLDSCRIPT) -o $@ $(SHRPLDFLAGS) $(obj) $(DYNALOADER) $(libs)
 !NO!SUBS!
 		case "$osname" in
 		aix)
