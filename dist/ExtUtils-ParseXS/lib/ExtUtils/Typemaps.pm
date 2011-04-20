@@ -878,18 +878,26 @@ sub _parse {
       $current = \$junk;
       next;
     }
-    
+
     if ($section eq 'typemap') {
       my $line = $_;
       s/^\s+//; s/\s+$//;
       next if $_ eq '' or /^#/;
-      my($type, $kind, $proto) = /^(.*?\S)\s+(\S+)\s*($ExtUtils::ParseXS::Constants::PrototypeRegexp*)$/o
+      my($type, $kind, $args, $proto) = /^
+        (?!\s)                                                     # must not start with whitespace
+        (.+?)                                                      # anything
+        \s+                                                        # followed by some whitespace
+        (\S+?)                                                     # non-whitespace, non-greedy
+        (\[.+?\]|{.+?})?                                           # possibly a bracket or brace thing
+        (?:\s+($ExtUtils::ParseXS::Constants::PrototypeRegexp*))?$ # possibly a sigil after whitespace
+      /x
         or warn("Warning: File '$filename' Line $lineno '$line' TYPEMAP entry needs 2 or 3 columns\n"),
            next;
       # prototype defaults to '$'
       $proto = '$' unless $proto;
       warn("Warning: File '$filename' Line $lineno '$line' Invalid prototype '$proto'\n")
         unless _valid_proto_string($proto);
+      warn sprintf '[%s] [%s%s] [%s]', $type, $kind, ($args || ''), $proto;
       $self->add_typemap(
         ExtUtils::Typemaps::Type->new(
           xstype => $kind, proto => $proto, ctype => $type
