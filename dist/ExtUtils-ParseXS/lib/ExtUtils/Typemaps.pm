@@ -878,12 +878,19 @@ sub _parse {
       $current = \$junk;
       next;
     }
-    
+
     if ($section eq 'typemap') {
       my $line = $_;
       s/^\s+//; s/\s+$//;
       next if $_ eq '' or /^#/;
-      my($type, $kind, $proto) = /^(.*?\S)\s+(\S+)\s*($ExtUtils::ParseXS::Constants::PrototypeRegexp*)$/o
+      my($type, $kind, $params, $proto) = /^
+        (?!\s)                                                     # must not start with whitespace
+        (.+?)                                                      # c type
+        \s+                                                        # followed by some whitespace
+        (\S+?)                                                     # xs type, simple identifier, non-greedy
+        (\[.+?\]|{.+?})?                                           # parameters for the xs type
+        (?:\s+($ExtUtils::ParseXS::Constants::PrototypeRegexp*))?$ # prototype
+      /x
         or warn("Warning: File '$filename' Line $lineno '$line' TYPEMAP entry needs 2 or 3 columns\n"),
            next;
       # prototype defaults to '$'
@@ -892,7 +899,8 @@ sub _parse {
         unless _valid_proto_string($proto);
       $self->add_typemap(
         ExtUtils::Typemaps::Type->new(
-          xstype => $kind, proto => $proto, ctype => $type
+          xstype => $kind, proto => $proto, ctype => $type,
+          ($params ? (parameters => $self->_decode_type_parameters($params)) : ()),
         ),
         @add_params
       );
@@ -921,6 +929,18 @@ sub _parse {
   }
 
   return 1;
+}
+
+sub _decode_type_parameters {
+  my ($self, $encoded_parameters) = @_;
+
+  # I'd like to load this earlier, with the rest of the dependencies, but we
+  # need a working DynaLoader to load JSON::PP as it uses the B module. However,
+  # to build DynaLoader we need a working xsubpp.
+  #  --rafl 2011-08-20
+  require JSON::PP;
+
+  return JSON::PP::decode_json($encoded_parameters);
 }
 
 # taken from ExtUtils::ParseXS

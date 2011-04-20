@@ -1807,6 +1807,7 @@ sub generate_init {
     unless defined $inputmap;
 
   my $expr = $inputmap->cleaned_code;
+  my $params = $typem->parameters;
   # Note: This gruesome bit either needs heavy rethinking or documentation. I vote for the former. --Steffen
   if ($expr =~ /DO_ARRAY_ELEM/) {
     my $subtypemap  = $typemaps->get_typemap(ctype => $subtype);
@@ -1897,6 +1898,7 @@ sub generate_output {
     ($subtype = $ntype) =~ s/(?:Array)?(?:Ptr)?$//;
 
     my $expr = $outputmap->cleaned_code;
+    my $params = $typemap->parameters;
     if ($expr =~ /DO_ARRAY_ELEM/) {
       my $subtypemap   = $typemaps->get_typemap(ctype => $subtype);
       $self->blurt("Could not find a typemap for C type '$subtype'"), return
