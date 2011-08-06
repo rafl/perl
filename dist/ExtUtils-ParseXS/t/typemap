@@ -53,6 +53,8 @@ InOutStream		T_INOUT
 OutputStream		T_OUT
 bool			T_BOOL
 
+SomeThing		T_PARAMETERISED_OBJECT{ "sv_type": "SVt_PVHV", "class": "Some::Thing" }
+
 #############################################################################
 INPUT
 T_SV
@@ -157,6 +159,15 @@ T_PTROBJ
 	    Perl_croak(aTHX_ \"%s: %s is not of type %s\",
 			${$ALIAS?\q[GvNAME(CvGV(cv))]:\qq[\"$pname\"]},
 			\"$var\", \"$ntype\")
+
+T_PARAMETERISED_OBJECT
+	if (!sv_derived_from($arg, \"$params->{class}\")) {
+	    Perl_croak(aTHX_ \"%s: %s is not of type %s\",
+			${$ALIAS?\q[GvNAME(CvGV(cv))]:\qq[\"$pname\"]},
+			\"$var\", \"$params->{class}\");
+	}
+
+
 T_PTRDESC
 	if (sv_isa($arg, \"${ntype}\")) {
 	    IV tmp = SvIV((SV*)SvRV($arg));
