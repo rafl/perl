@@ -1,7 +1,7 @@
 #!/usr/bin/perl
 
 use strict;
-use Test::More tests => 11;
+use Test::More tests => 14;
 use Config;
 use DynaLoader;
 use ExtUtils::CBuilder;
@@ -64,6 +64,13 @@ SKIP: {
       }
     }
   }
+
+  eval { XSTest::some_thing_in(XSTest::some_thing_out()) };
+  is $@, '', 'parametrised typemap variant one';
+  eval { XSTest::some_thing_else_in(XSTest::some_thing_else_out()) };
+  is $@, '', 'parametrised typemap variant two';
+  eval { XSTest::some_thing_in(XSTest::some_thing_else_out()) };
+  like $@, qr/of type Some::Thing/, 'same typemap, but yet incompatible';
 }
 
 my $seen = 0;

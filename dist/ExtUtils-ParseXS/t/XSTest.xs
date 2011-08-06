@@ -2,6 +2,9 @@
 #include "perl.h"
 #include "XSUB.h"
 
+typedef void SomeThing;
+typedef void SomeThingElse;
+
 void
 xstest_something (char * some_thing)
 {
@@ -49,7 +52,7 @@ xstest_something3 (myclass, some_thing)
 	some_thing = some_thing;
 	i = i;
 	XSRETURN_UNDEF;
-	
+
 int
 consts (myclass)
 	SV * myclass
@@ -65,3 +68,27 @@ consts (myclass)
     OUTPUT:
 	RETVAL
 
+
+SomeThing *
+some_thing_out ()
+    CODE:
+	RETVAL = (void *)NULL;
+    OUTPUT:
+	RETVAL
+
+void
+some_thing_in (SomeThing *thing)
+    CODE:
+	if (thing) { }
+
+SomeThingElse *
+some_thing_else_out ()
+    CODE:
+	RETVAL = (void *)NULL;
+    OUTPUT:
+	RETVAL
+
+void
+some_thing_else_in (SomeThingElse *thing)
+    CODE:
+	if (thing) { }
