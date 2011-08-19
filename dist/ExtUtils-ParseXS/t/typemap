@@ -171,7 +171,7 @@ T_PARAMETERISED_OBJECT
 	{
 	    MAGIC *mg;
 
-	    for (mg = SvMAGIC($arg); mg; mg = mg->mg_moremagic) {
+	    for (mg = SvMAGIC(SvRV($arg)); mg; mg = mg->mg_moremagic) {
 	        if (mg->mg_type == PERL_MAGIC_ext) {
 		    $var = ($type)mg->mg_ptr;
 		}
@@ -300,8 +300,8 @@ T_PARAMETERISED_OBJECT
 	    SV *obj, *ref;
 	    obj = newSV(0);
 	    sv_upgrade(obj, $params->{sv_type});
-	    sv_bless(obj, gv_stashpvs(\"$params->{class}\", 1));
 	    ref = newRV_noinc(obj);
+	    sv_bless(ref, gv_stashpvs(\"$params->{class}\", 1));
 	    sv_magicext(obj, NULL, PERL_MAGIC_ext, NULL, (const char *)$var, 0);
 	    $arg = ref;
 	}

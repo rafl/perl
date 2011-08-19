@@ -64,6 +64,13 @@ SKIP: {
       }
     }
   }
+
+  eval { XSTest::some_thing_in(XSTest::some_thing_out()) };
+  is $@, '';
+  eval { XSTest::some_thing_else_in(XSTest::some_thing_else_out()) };
+  is $@, '';
+  eval { XSTest::some_thing_in(XSTest::some_thing_else_out()) };
+  like $@, qr/of type Some::Thing/;
 }
 
 my $seen = 0;
