@@ -80,3 +80,15 @@ void
 some_thing_in (SomeThing *thing)
     CODE:
 	if (thing) { }
+
+SomeThingElse *
+some_thing_else_out ()
+    CODE:
+	RETVAL = (void *)NULL;
+    OUTPUT:
+	RETVAL
+
+void
+some_thing_else_in (SomeThingElse *thing)
+    CODE:
+	if (thing) { }
