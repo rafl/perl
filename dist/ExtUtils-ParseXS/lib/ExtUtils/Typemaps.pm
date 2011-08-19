@@ -883,7 +883,7 @@ sub _parse {
       my $line = $_;
       s/^\s+//; s/\s+$//;
       next if $_ eq '' or /^#/;
-      my($type, $kind, $args, $proto) = /^
+      my($type, $kind, $params, $proto) = /^
         (?!\s)                                                     # must not start with whitespace
         (.+?)                                                      # anything
         \s+                                                        # followed by some whitespace
@@ -897,10 +897,10 @@ sub _parse {
       $proto = '$' unless $proto;
       warn("Warning: File '$filename' Line $lineno '$line' Invalid prototype '$proto'\n")
         unless _valid_proto_string($proto);
-      warn sprintf '[%s] [%s%s] [%s]', $type, $kind, ($args || ''), $proto;
       $self->add_typemap(
         ExtUtils::Typemaps::Type->new(
-          xstype => $kind, proto => $proto, ctype => $type
+          xstype => $kind, proto => $proto, ctype => $type,
+          ($params ? (parameters => $self->_decode_type_parameters($params)) : ()),
         ),
         @add_params
       );
@@ -929,6 +929,12 @@ sub _parse {
   }
 
   return 1;
+}
+
+sub _decode_type_parameters {
+  my ($self, $encoded_parameters) = @_;
+  require JSON;
+  return JSON::decode_json($encoded_parameters);
 }
 
 # taken from ExtUtils::ParseXS

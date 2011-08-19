@@ -53,7 +53,8 @@ InOutStream		T_INOUT
 OutputStream		T_OUT
 bool			T_BOOL
 
-SomeThing		T_PARAMETERISED_OBJECT{ "sv_type": "SVt_PVHV", "class": "Some::Thing" }
+SomeThing *		T_PARAMETERISED_OBJECT{ "sv_type": "SVt_PVHV", "class": "Some::Thing" }
+SomeThingElse *		T_PARAMETERISED_OBJECT{ "sv_type": "SVt_PVIV", "class": "Some::Thing::Else" }
 
 #############################################################################
 INPUT
@@ -165,6 +166,16 @@ T_PARAMETERISED_OBJECT
 	    Perl_croak(aTHX_ \"%s: %s is not of type %s\",
 			${$ALIAS?\q[GvNAME(CvGV(cv))]:\qq[\"$pname\"]},
 			\"$var\", \"$params->{class}\");
+	}
+
+	{
+	    MAGIC *mg;
+
+	    for (mg = SvMAGIC($arg); mg; mg = mg->mg_moremagic) {
+	        if (mg->mg_type == PERL_MAGIC_ext) {
+		    $var = ($type)mg->mg_ptr;
+		}
+	    }
 	}
 
 
@@ -284,6 +295,17 @@ T_REF_IV_PTR
 	sv_setref_pv($arg, \"${ntype}\", (void*)$var);
 T_PTROBJ
 	sv_setref_pv($arg, \"${ntype}\", (void*)$var);
+T_PARAMETERISED_OBJECT
+        {
+	    SV *obj, *ref;
+	    obj = newSV(0);
+	    sv_upgrade(obj, $params->{sv_type});
+	    sv_bless(obj, gv_stashpvs(\"$params->{class}\", 1));
+	    ref = newRV_noinc(obj);
+	    sv_magicext(obj, NULL, PERL_MAGIC_ext, NULL, (const char *)$var, 0);
+	    $arg = ref;
+	}
+
 T_PTRDESC
 	sv_setref_pv($arg, \"${ntype}\", (void*)new\U${type}_DESC\E($var));
 T_REFREF

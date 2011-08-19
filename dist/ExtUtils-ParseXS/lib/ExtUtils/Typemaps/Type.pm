@@ -31,7 +31,7 @@ into the in- and output mapping tables.
 
 Requires C<xstype> and C<ctype> parameters.
 
-Optionally takes C<prototype> parameter.
+Optionally takes C<prototype> and C<parameters> arguments.
 
 =cut
 
@@ -55,8 +55,14 @@ sub new {
   $self->{ctype} = $args{ctype} if defined $args{ctype};
   $self->{tidy_ctype} = ExtUtils::Typemaps::_tidy_type($self->{ctype});
   $self->{proto} = $args{'prototype'} if defined $args{'prototype'};
+  $self->{parameters} = $args{parameters} if defined $args{parameters};
 
   return $self;
+}
+
+sub parameters {
+    my ($self) = @_;
+    $self->{parameters};
 }
 
 =head2 proto
