@@ -1889,8 +1889,9 @@ sub generate_output {
     my $typemap   = $typemaps->get_typemap(ctype => $type);
     $self->blurt("Could not find a typemap for C type '$type'"), return
       if not $typemap;
-    my $outputmap = $typemaps->get_outputmap(xstype => $typemap->xstype);
-    $self->blurt("Error: No OUTPUT definition for type '$type', typekind '" . $typemap->xstype . "' found"), return
+    my $xstype = $typemap->xstype;
+    my $outputmap = $typemaps->get_outputmap(xstype => $xstype);
+    $self->blurt("Error: No OUTPUT definition for type '$type', typekind '" . $xstype . "' found"), return
       unless $outputmap;
     ($ntype = $type) =~ s/\s*\*/Ptr/g;
     $ntype =~ s/\(\)//g;
@@ -1903,8 +1904,8 @@ sub generate_output {
       my $subtypemap   = $typemaps->get_typemap(ctype => $subtype);
       $self->blurt("Could not find a typemap for C type '$subtype'"), return
         if not $subtypemap;
-      my $suboutputmap = $typemaps->get_outputmap(xstype => $subtypemap->xstype);
-      $self->blurt("Error: No OUTPUT definition for type '$subtype', typekind '" . $subtypemap->xstype . "' found"), return
+      my $suboutputmap = $typemaps->get_outputmap(xstype => $xstype);
+      $self->blurt("Error: No OUTPUT definition for type '$subtype', typekind '" . $xstype . "' found"), return
         unless $suboutputmap;
       my $subexpr = $suboutputmap->cleaned_code;
       $subexpr =~ s/ntype/subtype/g;
