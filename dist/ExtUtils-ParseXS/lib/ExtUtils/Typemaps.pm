@@ -9,6 +9,8 @@ require ExtUtils::ParseXS;
 require ExtUtils::ParseXS::Constants;
 require ExtUtils::Typemaps::InputMap;
 require ExtUtils::Typemaps::OutputMap;
+require ExtUtils::Typemaps::PreInit;
+require ExtUtils::Typemaps::Init;
 require ExtUtils::Typemaps::Type;
 
 =head1 NAME
@@ -88,6 +90,10 @@ sub new {
     input_lookup    => {},
     output_section  => [],
     output_lookup   => {},
+    preinit_section => [],
+    preinit_lookup  => {},
+    init_section    => [],
+    init_lookup     => {},
   } => $class;
 
   $self->_init();
@@ -305,6 +311,24 @@ sub add_outputmap {
   push @{$self->{output_section}}, $output;
   # remember type for lookup, too.
   $self->{output_lookup}{$output->xstype} = $#{$self->{output_section}};
+
+  return 1;
+}
+
+sub add_preinit {
+  my ($self, $preinit) = @_;
+
+  push @{ $self->{preinit_section} }, $preinit;
+  $self->{preinit_lookup}{$preinit->xstype} = $#{$self->{preinit_section}};
+
+  return 1;
+}
+
+sub add_init {
+  my ($self, $init) = @_;
+
+  push @{ $self->{init_section} }, $init;
+  $self->{init_lookup}{$init->xstype} = $#{$self->{init_section}};
 
   return 1;
 }
@@ -532,6 +556,20 @@ sub get_outputmap {
   return $self->{output_section}[$index];
 }
 
+sub get_init {
+  my $self = shift;
+  die("Need named parameters, got uneven number") if @_ % 2;
+
+  my %args = @_;
+  my $xstype = $args{xstype};
+  die("Need xstype argument")
+    if not defined $xstype;
+
+  my $index = $self->{init_lookup}{$xstype};
+  return() if not defined $index;
+  return $self->{init_section}[$index];
+}
+
 =head2 write
 
 Write the typemap to a file. Optionally takes a C<file> argument. If given, the
@@ -570,6 +608,22 @@ sub as_string {
     # /^(.*?\S)\s+(\S+)\s*($ExtUtils::ParseXS::Constants::PrototypeRegexp*)$/o
     push @code, $entry->ctype . "\t" . $entry->xstype
               . ($entry->proto ne '' ? "\t".$entry->proto : '') . "\n";
+  }
+
+  my $preinit = $self->{preinit_section};
+  if (@$preinit) {
+    push @code, "\nPREINIT\n";
+    foreach my $entry (@$preinit) {
+      push @code, $entry->xstype, "\n", $entry->code, "\n";
+    }
+  }
+
+  my $init = $self->{init_section};
+  if (@$init) {
+    push @code, "\nINIT\n";
+    foreach my $entry (@$init) {
+      push @code, $entry->xstype, "\n", $entry->code, "\n";
+    }
   }
 
   my $input = $self->{input_section};
@@ -627,6 +681,14 @@ sub merge {
   # FIXME breaking encapsulation. Add accessor code.
   foreach my $entry (@{$typemap->{typemap_section}}) {
     $self->add_typemap( $entry, @params );
+  }
+
+  foreach my $entry (@{$typemap->{preinit_section}}) {
+    $self->add_preinit( $entry, @params );
+  }
+
+  foreach my $entry (@{$typemap->{init_section}}) {
+    $self->add_init( $entry, @params );
   }
 
   foreach my $entry (@{$typemap->{input_section}}) {
@@ -858,6 +920,8 @@ sub _parse {
   my $current = \$junk;
   my @input_expr;
   my @output_expr;
+  my @preinit_expr;
+  my @init_expr;
   while ($$stringref =~ /^(.*)$/gcm) {
     local $_ = $1;
     ++$lineno;
@@ -875,6 +939,16 @@ sub _parse {
     }
     elsif (/^TYPEMAP\s*$/) {
       $section = 'typemap';
+      $current = \$junk;
+      next;
+    }
+    elsif (/^PREINIT\s*$/) {
+      $section = 'preinit';
+      $current = \$junk;
+      next;
+    }
+    elsif (/^INIT\s*$/) {
+      $section = 'init';
       $current = \$junk;
       next;
     }
@@ -913,6 +987,12 @@ sub _parse {
       s/\s+$//;
       push @input_expr, {xstype => $_, code => ''};
       $current = \$input_expr[-1]{code};
+    } elsif ($section eq 'preinit') {
+      push @preinit_expr, { xstype => $_, code => '' };
+      $current = \$preinit_expr[-1]{code};
+    } elsif ($section eq 'init') {
+      push @init_expr, { xstype => $_, code => '' };
+      $current = \$init_expr[-1]{code};
     } else { # output section
       s/\s+$//;
       push @output_expr, {xstype => $_, code => ''};
@@ -926,6 +1006,12 @@ sub _parse {
   }
   foreach my $outexpr (@output_expr) {
     $self->add_outputmap( ExtUtils::Typemaps::OutputMap->new(%$outexpr), @add_params );
+  }
+  foreach my $preinit (@preinit_expr) {
+    $self->add_preinit( ExtUtils::TypeMaps::PreInit->new(%$preinit), @add_params );
+  }
+  foreach my $init (@init_expr) {
+    $self->add_init( ExtUtils::TypeMaps::Init->new(%$init), @add_params );
   }
 
   return 1;

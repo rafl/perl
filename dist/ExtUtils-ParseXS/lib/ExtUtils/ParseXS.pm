@@ -68,6 +68,7 @@ sub process_file {
     typemap         => [],
     versioncheck    => 1,
     FH              => Symbol::gensym(),
+    used_parameterised_types => {},
     %options,
   );
   $args{except} = $args{except} ? ' TRY' : '';
@@ -939,6 +940,15 @@ EOF
 #    XS_VERSION_BOOTCHECK;
 #
 EOF
+
+  for my $ctype (keys %{ $self->{used_parameterised_types} }) {
+      my $type = $self->{typemap}->get_typemap(ctype => $ctype);
+      my $init = $self->{typemap}->get_init(xstype => $type->xstype)->code;
+      my $ctype = $ctype;
+      (my $ntype = $ctype) =~ s/\s*\*/Ptr/g;
+      my $params = $type->parameters;
+      eval qq{print Q("${\ $init }\n")};
+  }
 
   print Q(<<"EOF") if defined $self->{xsubaliases} or defined $self->{interfaces};
 #    {
@@ -1887,6 +1897,8 @@ sub generate_output {
   }
   else {
     my $typemap   = $typemaps->get_typemap(ctype => $type);
+    $self->{used_parameterised_types}->{$type} = 1
+      if $typemap->parameters;
     $self->blurt("Could not find a typemap for C type '$type'"), return
       if not $typemap;
     my $xstype = $typemap->xstype;

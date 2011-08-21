@@ -58,13 +58,15 @@ SomeThingElse *		T_PARAMETERISED_OBJECT{ "sv_type": "SVt_PVIV", "class": "Some::
 
 #############################################################################
 PREINIT
+
 T_PARAMETERISED_OBJECT
-	GV *XS_TYPE_${xstype}_stash;
+	GV *XS_TYPE_${ntype}_stash;
 
 #############################################################################
 INIT
+
 T_PARAMETERISED_OBJECT
-	XS_TYPE_${xstype}_stash = gv_stashpvs(\"$params->{class}\", 0);
+	XS_TYPE_${ntype}_stash = gv_stashpvs(\"$params->{class}\", 0);
 
 #############################################################################
 INPUT
@@ -311,7 +313,7 @@ T_PARAMETERISED_OBJECT
 	    obj = newSV(0);
 	    sv_upgrade(obj, $params->{sv_type});
 	    ref = newRV_noinc(obj);
-	    sv_bless(ref, XS_TYPE_${xstype}_stash);
+	    sv_bless(ref, XS_TYPE_${ntype}_stash);
 	    sv_magicext(obj, NULL, PERL_MAGIC_ext, NULL, (const char *)$var, 0);
 	    $arg = ref;
 	}
